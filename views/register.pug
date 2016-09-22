@@ -1,0 +1,11 @@
+extends partials/layout.pug
+
+block content
+  if msg
+    h2= msg
+  form(method='POST')
+    label(for='email') Email address:
+    input(type='text' name='email' placeholder='a@b.com')
+    label(for='password') Password:
+    input(type='password' name='password' placeholder='********')
+    input(type='submit')
