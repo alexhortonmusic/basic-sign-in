@@ -28,6 +28,11 @@ app.use(session({
   secret: 'supersecretthing'
 }))
 
+app.use((req, res, next) => {
+  app.locals.email = req.user && req.user.email
+  next()
+})
+
 app.use(({ method, url, headers: { 'user-agent': agent } }, res, next) => {
   const timeStamp = new Date()
   // console.log(`[${timeStamp}] "`${method} ${url}`}" "${agent}"`)

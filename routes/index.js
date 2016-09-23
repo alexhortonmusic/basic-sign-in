@@ -8,6 +8,7 @@ const router = Router()
 const User = require('../models/user.js')
 
 router.get('/', (req, res) => {
+  console.log('USER:', req.user)
   res.render('index')
 })
 
@@ -34,7 +35,6 @@ router.post('/login', ({ session, body: { email, password }}, res, err) => {
     })
     .then(matches => {
       if (matches) {
-        console.log('session:', session)
         session.email = email
         res.redirect('/')
       } else {
@@ -76,12 +76,12 @@ router.post('/register', ({ session, body: { email, password }}, res, err) => {
 // })
 
 // guard middleware
-// router.use((req, res, next) => {
-//   if (req.session.email) {
-//     next()
-//   } else {
-//     res.redirect('login')
-//   }
-// })
+router.use((req, res, next) => {
+  if (req.user) {
+    next()
+  } else {
+    res.redirect('login')
+  }
+})
 
 module.exports = router
