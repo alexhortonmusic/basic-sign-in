@@ -8,7 +8,7 @@ const router = Router()
 const User = require('../models/user.js')
 
 router.get('/', (req, res) => {
-  console.log('USER:', req.user)
+  console.log('USER:', req.body)
   res.render('index')
 })
 

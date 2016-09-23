@@ -20,6 +20,11 @@ if (process.env.NODE_ENV !== 'production') {
   app.locals.pretty = true
 }
 
+//Null catches
+app.locals.user = {email: 'a@b.com'}
+app.locals.errors = {} // errors & body added to avoid guard statements
+app.locals.body = {}
+
 // middlewares
 app.use(session({
   store: new RedisStore({
@@ -29,7 +34,8 @@ app.use(session({
 }))
 
 app.use((req, res, next) => {
-  app.locals.email = req.user && req.user.email
+  //Since you are not using passport yet you will need to use session
+  app.locals.email = req.session.email
   next()
 })
 
