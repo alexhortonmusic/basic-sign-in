@@ -1,87 +1,41 @@
 'use strict';
 
 const { Router } = require('express')
-const bcrypt = require('bcrypt')
 
 const router = Router()
 
-const User = require('../models/user.js')
+const login = require('./login')
+const register = require('./register')
+const root = require('./root')
 
-router.get('/', (req, res) => {
-  console.log('USER:', req.body)
-  res.render('index')
+// const { index, destroy } = require('../ctrl/logout')
+
+router.use(root)
+router.use(login)
+router.use(register)
+
+router.get('/logout', (req, res) => {
+  if (req.session.email) {
+    res.render('logout', { page: 'Logout'})
+  } else {
+    res.redirect('/login')
+  }
 })
-
-router.get('/login', (req, res) => {
-  res.render('login')
-})
-
-router.post('/login', ({ session, body: { email, password }}, res, err) => {
-  User.findOne({ email })
-    .then(user => {
-      if (user) {
-        return new Promise((resolve, reject) => {
-          bcrypt.compare(password, user.password, (err, matches) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve(matches)
-            }
-          })
-        })
-      } else {
-        res.render('login', { msg: 'Account does not exist'})
-      }
-    })
-    .then(matches => {
-      if (matches) {
-        session.email = email
-        res.redirect('/')
-      } else {
-        res.render('login', { msg: 'Password does not match'})
-      }
-    })
-    .catch(err)
-})
-
-router.get('/register', (req, res) => {
-  res.render('register')
-})
-
-router.post('/register', ({ session, body: { email, password }}, res, err) => {
-  console.log(session)
-  User.findOne({ email })
-    .then(user => {
-      if (user) {
-        res.render('register', { msg: 'User already exists'})
-      } else {
-        return new Promise((resolve, reject) => {
-          bcrypt.hash(password, 13, (err, hash) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve(hash)
-            }
-          })
-        })
-      }
-    })
-    .then(hash => User.create({ email, password: hash }))
-    .then(() => res.redirect('login'))
-    .catch(err)
-})
-
-// router.get('/logout', (req, res) => {
-//
-// })
 
 // guard middleware
 router.use((req, res, next) => {
-  if (req.user) {
+  if (req.session) {
     next()
   } else {
-    res.redirect('login')
+    res.redirect('/login')
   }
+})
+
+router.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) throw err
+    res.redirect('/login')
+  })
 })
 
 module.exports = router
